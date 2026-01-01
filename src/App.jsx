@@ -34,6 +34,18 @@ function App() {
   const [showSuitOptions, setShowSuitOptions] = useState(false)
   const [roundStep, setRoundStep] = useState('selectSuit')
   const [showScoreHelp, setShowScoreHelp] = useState(false)
+  const [selectingDealer, setSelectingDealer] = useState(false)
+  const [teamNames, setTeamNames] = useState({ team0: 'Team A', team1: 'Team B' })
+  const [editingTeam, setEditingTeam] = useState(null) // 0 or 1 or null
+
+  // Randomize feature removed per user request
+
+  const updateTeamName = (teamIdx, value) => {
+    const v = (value || '').trim()
+    if (!v) return
+    setTeamNames(prev => ({ ...prev, [teamIdx === 0 ? 'team0' : 'team1']: v }))
+    setEditingTeam(null)
+  }
 
   const overlayColor = (() => {
     if (!trump) return '#0f172a' // slate-900
@@ -109,8 +121,7 @@ function App() {
   const startGame = () => {
     if (players.every(p => p.trim() !== '')) {
       setGameStarted(true)
-      setShowDealerMessage(true)
-      setTimeout(() => setShowDealerMessage(false), 3000)
+      setSelectingDealer(true)
     }
   }
 
@@ -317,30 +328,72 @@ function App() {
   if (!gameStarted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-xl space-y-6">
+        <div className="w-full max-w-6xl space-y-8">
           <h1 className="text-center text-6xl font-extrabold text-yellow-300">🃏 Euchre Score Keeper</h1>
-          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-xl">
-            <h2 className="text-center text-2xl font-semibold text-yellow-300">Enter Player Names</h2>
-            <p className="text-center text-slate-300 mb-6">Players sit across from their partner</p>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium">Player 1 (Dealer starts here)</label>
-                <input type="text" value={players[0]} onChange={(e) => handlePlayerChange(0, e.target.value)} placeholder="Enter name" className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-10 shadow-xl">
+            <h2 className="text-center text-2xl font-semibold text-yellow-300 mb-6">Enter Player Names</h2>
+            <div className="flex items-center justify-center gap-6 mb-6">
+              <button className="rounded-lg border border-blue-600 bg-blue-900/60 px-4 py-2 text-blue-200 text-lg font-semibold hover:bg-blue-800" onClick={() => setEditingTeam(0)}>{teamNames.team0}</button>
+              <button className="rounded-lg border border-red-600 bg-red-900/60 px-4 py-2 text-red-200 text-lg font-semibold hover:bg-red-800" onClick={() => setEditingTeam(1)}>{teamNames.team1}</button>
+            </div>
+            {editingTeam !== null && (
+              <div className="mb-4 max-w-xl mx-auto">
+                <input type="text" value={editingTeam === 0 ? teamNames.team0 : teamNames.team1} onChange={(e) => setTeamNames(prev => (editingTeam === 0 ? { ...prev, team0: e.target.value } : { ...prev, team1: e.target.value }))} className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-4 py-3 text-slate-100 focus:border-primary focus:outline-none" />
+                <div className="mt-2 flex justify-end">
+                  <button className="rounded-md bg-primary px-3 py-1.5 text-white text-sm hover:bg-emerald-700" onClick={() => updateTeamName(editingTeam, editingTeam === 0 ? teamNames.team0 : teamNames.team1)}>Save Name</button>
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium">Player 2 (Partner with Player 4)</label>
-                <input type="text" value={players[1]} onChange={(e) => handlePlayerChange(1, e.target.value)} placeholder="Enter name" className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="rounded-xl border-2 border-blue-600 bg-blue-900/50 p-6">
+                <label className="text-blue-300 font-medium">Player 1 (Blue)</label>
+                <input type="text" value={players[0]} onChange={(e) => handlePlayerChange(0, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
               </div>
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium">Player 3 (Partner with Player 1)</label>
-                <input type="text" value={players[2]} onChange={(e) => handlePlayerChange(2, e.target.value)} placeholder="Enter name" className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="rounded-xl border-2 border-red-600 bg-red-900/50 p-6">
+                <label className="text-red-300 font-medium">Player 2 (Red)</label>
+                <input type="text" value={players[1]} onChange={(e) => handlePlayerChange(1, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
               </div>
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium">Player 4 (Partner with Player 2)</label>
-                <input type="text" value={players[3]} onChange={(e) => handlePlayerChange(3, e.target.value)} placeholder="Enter name" className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="rounded-xl border-2 border-red-600 bg-red-900/50 p-6">
+                <label className="text-red-300 font-medium">Player 4 (Red)</label>
+                <input type="text" value={players[3]} onChange={(e) => handlePlayerChange(3, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              </div>
+              <div className="rounded-xl border-2 border-blue-600 bg-blue-900/50 p-6">
+                <label className="text-blue-300 font-medium">Player 3 (Blue)</label>
+                <input type="text" value={players[2]} onChange={(e) => handlePlayerChange(2, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
               </div>
             </div>
+            <p className="text-center text-slate-400 mt-4">Blue and Red are opposite teams. Partners are diagonal (1 & 3 are Blue, 2 & 4 are Red).</p>
             <button className="mt-6 w-full rounded-xl bg-primary px-6 py-5 text-xl font-bold text-white transition-colors disabled:opacity-50 hover:bg-emerald-700" onClick={startGame} disabled={!players.every(p => p.trim() !== '')}>Start Game</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Dealer selection step right after starting
+  if (gameStarted && selectingDealer && !gameEnded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-xl">
+          <h2 className="text-center text-2xl font-semibold text-yellow-300 mb-4">Select the Dealer</h2>
+          <p className="text-center text-slate-300 mb-6">Tap the player who deals first</p>
+          <div className="grid grid-cols-2 gap-4">
+            {[0,1,3,2].map((idx) => {
+              const isBlue = idx === 0 || idx === 2
+              const btnClasses = isBlue
+                ? "rounded-xl border-2 border-blue-600 bg-blue-900/50 px-4 py-5 text-blue-100 text-xl font-semibold hover:bg-blue-800"
+                : "rounded-xl border-2 border-red-600 bg-red-900/50 px-4 py-5 text-red-100 text-xl font-semibold hover:bg-red-800"
+              return (
+                <button key={idx} className={btnClasses} onClick={() => {
+                  setCurrentDealer(idx)
+                  setSelectingDealer(false)
+                  setShowDealerMessage(true)
+                  setTimeout(() => setShowDealerMessage(false), 3000)
+                }}>
+                  {players[idx]}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -362,7 +415,7 @@ function App() {
         <div className="w-full max-w-xl rounded-2xl border border-slate-700 bg-slate-800 p-6 shadow-xl text-center">
           <h1 className="text-3xl font-bold text-yellow-300 mb-4">🎉 GAME OVER! 🎉</h1>
           <div className="rounded-2xl bg-primary p-6 mb-6 shadow">
-            <h2 className="text-white text-2xl font-semibold mb-2">Team {winner + 1} Wins!</h2>
+            <h2 className="text-white text-2xl font-semibold mb-2">{winner === 0 ? teamNames.team0 : teamNames.team1} Wins!</h2>
             <div className="text-white/90 text-lg font-medium mb-2">{winnerNames}</div>
             <div className="text-yellow-300 text-4xl font-extrabold">{scores[0]} - {scores[1]}</div>
           </div>
@@ -379,11 +432,11 @@ function App() {
                 <div className="text-yellow-300 text-2xl font-bold">{stats.skippedRounds}</div>
               </div>
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                <div className="text-slate-300 text-sm font-medium uppercase">Team 1 Called Suit</div>
+                <div className="text-slate-300 text-sm font-medium uppercase">{teamNames.team0} Called Suit</div>
                 <div className="text-yellow-300 text-2xl font-bold">{team1Trump}x</div>
               </div>
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                <div className="text-slate-300 text-sm font-medium uppercase">Team 2 Called Suit</div>
+                <div className="text-slate-300 text-sm font-medium uppercase">{teamNames.team1} Called Suit</div>
                 <div className="text-yellow-300 text-2xl font-bold">{team2Trump}x</div>
               </div>
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
@@ -417,7 +470,7 @@ function App() {
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">Team 1 Points</h4>
+                <h4 className="text-yellow-300 text-lg font-semibold mb-2">{teamNames.team0} Points</h4>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
                   <span className="text-slate-100">+1</span>
                   <span className="text-emerald-400 font-bold text-xl">{team1Points.p1}</span>
@@ -432,7 +485,7 @@ function App() {
                 </div>
               </div>
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">Team 2 Points</h4>
+                <h4 className="text-yellow-300 text-lg font-semibold mb-2">{teamNames.team1} Points</h4>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
                   <span className="text-slate-100">+1</span>
                   <span className="text-emerald-400 font-bold text-xl">{team2Points.p1}</span>
@@ -452,11 +505,11 @@ function App() {
               <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
                 <h4 className="text-yellow-300 text-lg font-semibold mb-2">Rounds Won</h4>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Team 1</span>
+                  <span className="text-slate-100">{teamNames.team0}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.roundsWonByTeam[0]}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100">Team 2</span>
+                  <span className="text-slate-100">{teamNames.team1}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.roundsWonByTeam[1]}</span>
                 </div>
               </div>
@@ -467,11 +520,11 @@ function App() {
                   <span className="text-emerald-400 font-bold text-xl">{stats.euchreEvents}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Euchres by Team 1</span>
+                  <span className="text-slate-100">Euchres by {teamNames.team0}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.euchreByTeam[0]}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Euchres by Team 2</span>
+                  <span className="text-slate-100">Euchres by {teamNames.team1}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.euchreByTeam[1]}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
@@ -479,11 +532,11 @@ function App() {
                   <span className="text-emerald-400 font-bold text-xl">{stats.lonerEvents}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Loners by Team 1</span>
+                  <span className="text-slate-100">Loners by {teamNames.team0}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.lonerByTeam[0]}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100">Loners by Team 2</span>
+                  <span className="text-slate-100">Loners by {teamNames.team1}</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.lonerByTeam[1]}</span>
                 </div>
               </div>
@@ -508,20 +561,30 @@ function App() {
         </div>
       </div>
 
-      {/* Scores at the top */}
-      <div className="grid grid-cols-3 items-center gap-4 rounded-xl border border-slate-700 bg-slate-800 p-6 shadow">
-        <div className="text-center">
-          <h2 className="text-yellow-300 text-xl font-semibold">Team 1</h2>
-          <div className="text-slate-300 text-lg font-medium">{players[0]} & {players[2]}</div>
-          <div className={`leading-none text-7xl sm:text-8xl font-extrabold text-yellow-400 transition-transform ${animateScore[0] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[0]}</div>
-        </div>
-        <div className="text-center text-yellow-300 font-bold text-2xl">VS</div>
-        <div className="text-center">
-          <h2 className="text-yellow-300 text-xl font-semibold">Team 2</h2>
-          <div className="text-slate-300 text-lg font-medium">{players[1]} & {players[3]}</div>
-          <div className={`leading-none text-7xl sm:text-8xl font-extrabold text-yellow-400 transition-transform ${animateScore[1] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[1]}</div>
-        </div>
-      </div>
+      {/* Scores at the top (shrinks during round) */}
+      {(() => {
+        const headerShrink = Boolean(trump) && roundStep === 'score'
+        return (
+          <motion.div
+            className={`grid grid-cols-3 items-center gap-4 rounded-xl border border-slate-700 bg-slate-800 shadow ${headerShrink ? 'p-3 sticky top-0 z-20 bg-slate-800/90 backdrop-blur' : 'p-6'}`}
+            initial={false}
+            animate={headerShrink ? { scale: 0.9, y: -6, opacity: 0.98 } : { scale: 1, y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          >
+            <div className="text-center">
+              <h2 className={`text-yellow-300 font-semibold ${headerShrink ? 'text-base' : 'text-xl'}`}>{teamNames.team0}</h2>
+              <div className={`text-slate-300 font-medium ${headerShrink ? 'text-xs' : 'text-lg'}`}>{players[0]} & {players[2]}</div>
+              <div className={`leading-none font-extrabold text-yellow-400 transition-transform ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-7xl sm:text-8xl'} ${animateScore[0] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[0]}</div>
+            </div>
+            <div className={`text-center text-yellow-300 font-bold ${headerShrink ? 'text-base' : 'text-2xl'}`}>VS</div>
+            <div className="text-center">
+              <h2 className={`text-yellow-300 font-semibold ${headerShrink ? 'text-base' : 'text-xl'}`}>{teamNames.team1}</h2>
+              <div className={`text-slate-300 font-medium ${headerShrink ? 'text-xs' : 'text-lg'}`}>{players[1]} & {players[3]}</div>
+              <div className={`leading-none font-extrabold text-yellow-400 transition-transform ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-7xl sm:text-8xl'} ${animateScore[1] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[1]}</div>
+            </div>
+          </motion.div>
+        )
+      })()}
 
       {/* Current Dealer and Suit */}
       <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow mb-4">
@@ -604,7 +667,8 @@ function App() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-2">Team 1</h5>
+                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-1">{teamNames.team0}</h5>
+                    <div className="text-center text-blue-300 text-sm mb-2">{players[0]} &amp; {players[2]}</div>
                     <div className="grid grid-cols-3 gap-2 mb-2">
                       <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(0, 'plus1')}>+1</button>
                       <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(0, 'euchre')}>+2</button>
@@ -614,7 +678,8 @@ function App() {
                   </div>
 
                   <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-2">Team 2</h5>
+                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-1">{teamNames.team1}</h5>
+                    <div className="text-center text-red-300 text-sm mb-2">{players[1]} &amp; {players[3]}</div>
                     <div className="grid grid-cols-3 gap-2 mb-2">
                       <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(1, 'plus1')}>+1</button>
                       <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(1, 'euchre')}>+2</button>
