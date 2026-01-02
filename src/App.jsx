@@ -9,7 +9,6 @@ function App() {
   const [trump, setTrump] = useState('')
   const [trumpTeam, setTrumpTeam] = useState(null) // null, 0, or 1
   const [roundPoints, setRoundPoints] = useState([0, 0])
-  const [showDealerMessage, setShowDealerMessage] = useState(false)
   const [animateScore, setAnimateScore] = useState([false, false])
   const [trumpAnimation, setTrumpAnimation] = useState(false)
   const [gameEnded, setGameEnded] = useState(false)
@@ -37,6 +36,9 @@ function App() {
   const [selectingDealer, setSelectingDealer] = useState(false)
   const [teamNames, setTeamNames] = useState({ team0: 'Team A', team1: 'Team B' })
   const [editingTeam, setEditingTeam] = useState(null) // 0 or 1 or null
+  const [history, setHistory] = useState([]) // round-by-round events
+  const [showHistory, setShowHistory] = useState(false)
+  const [initialDealer, setInitialDealer] = useState(null)
 
   // Randomize feature removed per user request
 
@@ -147,9 +149,7 @@ function App() {
     setTrump('')
     setTrumpTeam(null)
     
-    // Show next dealer message
-    setShowDealerMessage(true)
-    setTimeout(() => setShowDealerMessage(false), 3000)
+    // Removed popup for next dealer per request
   }
 
   const resetGame = () => {
@@ -158,7 +158,7 @@ function App() {
     setTrump('')
     setTrumpTeam(null)
     setRoundPoints([0, 0])
-    setShowDealerMessage(false)
+    
     setAnimateScore([false, false])
     setGameEnded(false)
     setWinner(null)
@@ -185,7 +185,7 @@ function App() {
     setTrump('')
     setTrumpTeam(null)
     setRoundPoints([0, 0])
-    setShowDealerMessage(false)
+    
     setAnimateScore([false, false])
     setGameEnded(false)
     setWinner(null)
@@ -202,6 +202,34 @@ function App() {
       euchreByTeam: [0, 0],
       lonerByTeam: [0, 0]
     })
+  }
+
+  const playAgain = () => {
+    // Keep player names and team names, reset game state
+    setScores([0, 0])
+    setCurrentDealer(0)
+    setTrump('')
+    setTrumpTeam(null)
+    setRoundPoints([0, 0])
+    
+    setAnimateScore([false, false])
+    setGameEnded(false)
+    setWinner(null)
+    setStats({
+      trumpTeam0: 0,
+      trumpTeam1: 0,
+      trumpSuits: { 'Spades': 0, 'Hearts': 0, 'Diamonds': 0, 'Clubs': 0 },
+      roundsPlayed: 0,
+      skippedRounds: 0,
+      roundsWonByTeam: [0, 0],
+      pointsByTeam: { team0: { p1: 0, p2: 0, p4: 0 }, team1: { p1: 0, p2: 0, p4: 0 } },
+      euchreEvents: 0,
+      lonerEvents: 0,
+      euchreByTeam: [0, 0],
+      lonerByTeam: [0, 0]
+    })
+    setGameStarted(true)
+    setSelectingDealer(true) // Ask for the dealer again
   }
 
   const handleRoundEnd = (pointsForRound, callerTeam = null, outcomeType = null) => {
@@ -250,6 +278,20 @@ function App() {
     }
     setStats(newStats)
 
+    // Record history event for this round
+    const eventPoints = scoringTeam !== null ? pts[scoringTeam] : 0
+    const event = {
+      id: Date.now(),
+      round: history.length + 1,
+      dealerIdx: currentDealer,
+      trumpSuit: trump,
+      callerTeam: caller,
+      scoringTeam,
+      pointsAwarded: eventPoints,
+      outcomeType,
+    }
+    setHistory(prev => [...prev, event])
+
     // Check for winner
     if (newScores[0] >= 10 || newScores[1] >= 10) {
       const winnerTeam = newScores[0] >= 10 ? 0 : 1
@@ -268,9 +310,7 @@ function App() {
     setTrumpTeam(null)
     setRoundStep('selectSuit')
 
-    // Show next dealer message
-    setShowDealerMessage(true)
-    setTimeout(() => setShowDealerMessage(false), 3000)
+    // Removed popup for next dealer per request
   }
 
   const handleTrumpSelect = (suit) => {
@@ -294,9 +334,84 @@ function App() {
       ...prev,
       skippedRounds: prev.skippedRounds + 1
     }))
-    // Show next dealer message
-    setShowDealerMessage(true)
-    setTimeout(() => setShowDealerMessage(false), 3000)
+    // Record skip in history
+    const event = {
+      id: Date.now(),
+      round: history.length + 1,
+      dealerIdx: (nextDealer + 3) % 4, // previous dealer just passed
+      trumpSuit: '',
+      callerTeam: null,
+      scoringTeam: null,
+      pointsAwarded: 0,
+      outcomeType: 'skip',
+    }
+    setHistory(prev => [...prev, event])
+  }
+
+  const recomputeFromHistory = (events) => {
+    // Reset stats and scores and recompute from history
+    let recomputedScores = [0, 0]
+    const recomputedStats = {
+      trumpTeam0: 0,
+      trumpTeam1: 0,
+      trumpSuits: { 'Spades': 0, 'Hearts': 0, 'Diamonds': 0, 'Clubs': 0 },
+      roundsPlayed: 0,
+      skippedRounds: 0,
+      roundsWonByTeam: [0, 0],
+      pointsByTeam: { team0: { p1: 0, p2: 0, p4: 0 }, team1: { p1: 0, p2: 0, p4: 0 } },
+      euchreEvents: 0,
+      lonerEvents: 0,
+      euchreByTeam: [0, 0],
+      lonerByTeam: [0, 0]
+    }
+    events.forEach(ev => {
+      if (ev.outcomeType === 'skip') {
+        recomputedStats.skippedRounds++
+        return
+      }
+      const scoringTeam = ev.scoringTeam
+      const points = ev.pointsAwarded || 0
+      if (scoringTeam === 0 || scoringTeam === 1) {
+        recomputedScores[scoringTeam] += points
+        recomputedStats.roundsWonByTeam[scoringTeam] = (recomputedStats.roundsWonByTeam[scoringTeam] || 0) + 1
+        if (points === 1) recomputedStats.pointsByTeam[scoringTeam === 0 ? 'team0' : 'team1'].p1++
+        if (points === 2) recomputedStats.pointsByTeam[scoringTeam === 0 ? 'team0' : 'team1'].p2++
+        if (points === 4) recomputedStats.pointsByTeam[scoringTeam === 0 ? 'team0' : 'team1'].p4++
+      }
+      const caller = ev.callerTeam
+      if (caller === 0) recomputedStats.trumpTeam0++
+      if (caller === 1) recomputedStats.trumpTeam1++
+      const suitName = ev.trumpSuit ? ev.trumpSuit.split(' ')[1] : null
+      if (suitName && recomputedStats.trumpSuits[suitName] !== undefined) {
+        recomputedStats.trumpSuits[suitName]++
+      }
+      recomputedStats.roundsPlayed++
+      if (ev.outcomeType === 'euchre') {
+        recomputedStats.euchreEvents++
+        if (scoringTeam === 0 || scoringTeam === 1) {
+          recomputedStats.euchreByTeam[scoringTeam] = (recomputedStats.euchreByTeam[scoringTeam] || 0) + 1
+        }
+      }
+      if (ev.outcomeType === 'loner') {
+        recomputedStats.lonerEvents++
+        if (scoringTeam === 0 || scoringTeam === 1) {
+          recomputedStats.lonerByTeam[scoringTeam] = (recomputedStats.lonerByTeam[scoringTeam] || 0) + 1
+        }
+      }
+    })
+    setScores(recomputedScores)
+    setStats(recomputedStats)
+    // Recompute current dealer based on initialDealer and number of events
+    if (initialDealer !== null) {
+      const turns = events.length
+      setCurrentDealer((initialDealer + turns) % 4)
+    }
+    // Reset round UI state
+    setTrump('')
+    setTrumpTeam(null)
+    setRoundStep('selectSuit')
+    setGameEnded(recomputedScores[0] >= 10 || recomputedScores[1] >= 10)
+    setWinner(recomputedScores[0] >= 10 ? 0 : (recomputedScores[1] >= 10 ? 1 : null))
   }
 
   const handleOutcome = (team, outcome) => {
@@ -329,7 +444,7 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-6xl space-y-8">
-          <h1 className="text-center text-6xl font-extrabold text-yellow-300">🃏 Euchre Score Keeper</h1>
+          <h1 className="text-center text-6xl font-extrabold text-yellow-300">Euchre Score Keeper</h1>
           <div className="rounded-2xl border border-slate-700 bg-slate-800 p-10 shadow-xl">
             <h2 className="text-center text-2xl font-semibold text-yellow-300 mb-6">Enter Player Names</h2>
             <div className="flex items-center justify-center gap-6 mb-6">
@@ -386,9 +501,8 @@ function App() {
               return (
                 <button key={idx} className={btnClasses} onClick={() => {
                   setCurrentDealer(idx)
+                  setInitialDealer(idx)
                   setSelectingDealer(false)
-                  setShowDealerMessage(true)
-                  setTimeout(() => setShowDealerMessage(false), 3000)
                 }}>
                   {players[idx]}
                 </button>
@@ -411,8 +525,8 @@ function App() {
     const team2Points = stats.pointsByTeam.team1
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-xl rounded-2xl border border-slate-700 bg-slate-800 p-6 shadow-xl text-center">
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-6xl rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-xl text-center">
           <h1 className="text-3xl font-bold text-yellow-300 mb-4">🎉 GAME OVER! 🎉</h1>
           <div className="rounded-2xl bg-primary p-6 mb-6 shadow">
             <h2 className="text-white text-2xl font-semibold mb-2">{winner === 0 ? teamNames.team0 : teamNames.team1} Wins!</h2>
@@ -421,34 +535,26 @@ function App() {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-yellow-300 text-xl font-semibold mb-4">📊 Game Statistics</h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+            <h3 className="text-yellow-300 text-2xl font-semibold mb-4">Game Statistics</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
                 <div className="text-slate-300 text-sm font-medium uppercase">Total Rounds (incl. skips)</div>
                 <div className="text-yellow-300 text-2xl font-bold">{totalRoundsWithSkips}</div>
               </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
                 <div className="text-slate-300 text-sm font-medium uppercase">Skipped Rounds</div>
                 <div className="text-yellow-300 text-2xl font-bold">{stats.skippedRounds}</div>
               </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                <div className="text-slate-300 text-sm font-medium uppercase">{teamNames.team0} Called Suit</div>
-                <div className="text-yellow-300 text-2xl font-bold">{team1Trump}x</div>
-              </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                <div className="text-slate-300 text-sm font-medium uppercase">{teamNames.team1} Called Suit</div>
-                <div className="text-yellow-300 text-2xl font-bold">{team2Trump}x</div>
-              </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
+              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
                 <div className="text-slate-300 text-sm font-medium uppercase">Most Chosen Suit</div>
                 <div className="text-yellow-300 text-xl font-bold">{mostCommonSuit[0]}</div>
                 <div className="text-slate-400 text-sm">{mostCommonSuit[1]} times</div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 mb-4">
-              <h4 className="text-yellow-300 text-lg font-semibold mb-3">Suit Breakdown</h4>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6 mb-6 text-left">
+              <h4 className="text-yellow-300 text-xl font-semibold mb-3">Suit Breakdown</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
                   <span className="text-slate-100 text-lg">♠️ Spades</span>
                   <span className="text-emerald-400 font-bold text-xl">{stats.trumpSuits['Spades']}</span>
@@ -467,85 +573,40 @@ function App() {
                 </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">{teamNames.team0} Points</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">+1</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team1Points.p1}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">+2</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team1Points.p2}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100">+4</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team1Points.p4}</span>
-                </div>
-              </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">{teamNames.team1} Points</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">+1</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team2Points.p1}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">+2</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team2Points.p2}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100">+4</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team2Points.p4}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">Rounds Won</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-left">
+              <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6">
+                <h4 className="text-yellow-300 text-xl font-semibold mb-2">Team Calls</h4>
+                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3 mb-2">
                   <span className="text-slate-100">{teamNames.team0}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.roundsWonByTeam[0]}</span>
+                  <span className="text-emerald-400 font-bold text-xl">{team1Trump}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
+                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
                   <span className="text-slate-100">{teamNames.team1}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.roundsWonByTeam[1]}</span>
+                  <span className="text-emerald-400 font-bold text-xl">{team2Trump}</span>
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4 text-left">
-                <h4 className="text-yellow-300 text-lg font-semibold mb-2">Outcomes</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Euchres (Total)</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.euchreEvents}</span>
+              <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6">
+                <h4 className="text-yellow-300 text-xl font-semibold mb-2">Outcomes</h4>
+                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3 mb-2">
+                  <span className="text-slate-100">Euchres</span>
+                  <span className="text-emerald-400 font-bold text-xl">{stats.euchreEvents} <span className="text-slate-400 text-sm">({teamNames.team0}: {stats.euchreByTeam[0]}, {teamNames.team1}: {stats.euchreByTeam[1]})</span></span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Euchres by {teamNames.team0}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.euchreByTeam[0]}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Euchres by {teamNames.team1}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.euchreByTeam[1]}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Loners (Total)</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.lonerEvents}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2 mb-2">
-                  <span className="text-slate-100">Loners by {teamNames.team0}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.lonerByTeam[0]}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100">Loners by {teamNames.team1}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.lonerByTeam[1]}</span>
+                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
+                  <span className="text-slate-100">Loners</span>
+                  <span className="text-emerald-400 font-bold text-xl">{stats.lonerEvents} <span className="text-slate-400 text-sm">({teamNames.team0}: {stats.lonerByTeam[0]}, {teamNames.team1}: {stats.lonerByTeam[1]})</span></span>
                 </div>
               </div>
             </div>
           </div>
 
-          <button className="w-full rounded-xl bg-primary px-5 py-4 text-lg font-bold text-white hover:bg-emerald-700" onClick={newGame}>
-            Play Again
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button className="w-full rounded-xl bg-primary px-5 py-4 text-lg font-bold text-white hover:bg-emerald-700" onClick={playAgain}>
+              Play Again
+            </button>
+            <button className="w-full rounded-xl bg-slate-300 px-5 py-4 text-lg font-bold text-slate-900 hover:bg-slate-200" onClick={newGame}>
+              New Game
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -554,10 +615,11 @@ function App() {
   return (
     <div className="max-w-7xl mx-auto p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4 gap-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-yellow-300">🃏 Euchre Score Keeper</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-yellow-300">Euchre Score Keeper</h1>
         <div className="flex gap-2">
           <button className="rounded-lg bg-accent px-4 py-3 text-white text-lg font-semibold hover:bg-red-600" onClick={resetGame}>Reset Scores</button>
           <button className="rounded-lg bg-slate-300 px-4 py-3 text-slate-900 text-lg font-semibold hover:bg-slate-200" onClick={newGame}>New Game</button>
+          <button className="rounded-lg bg-slate-700 px-4 py-3 text-white text-lg font-semibold hover:bg-slate-600" onClick={() => setShowHistory(v => !v)}>{showHistory ? 'Hide History' : 'Show History'}</button>
         </div>
       </div>
 
@@ -601,11 +663,7 @@ function App() {
           <span className="text-yellow-300 font-bold text-xl">{players[currentDealer]}</span>
         </div>
 
-        {showDealerMessage && (
-          <div className="bg-primary text-white rounded-lg p-3 text-center font-semibold mb-3 text-lg">
-            🎴 Next dealer is {players[currentDealer]}!
-          </div>
-        )}
+        {/* Removed next dealer popup per request */}
 
         <div className="mb-3">
           <h3 className="text-center text-yellow-300 text-xl md:text-2xl font-semibold mb-2">Select Power Suit</h3>
@@ -694,9 +752,98 @@ function App() {
         )}
       </div>
 
+      {/* History Panel */}
+      {showHistory && (
+        <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow mb-4">
+          <h3 className="text-yellow-300 text-xl font-semibold mb-4">📜 Game History</h3>
+          {history.length === 0 ? (
+            <div className="text-slate-300">No history yet — play a round to see events.</div>
+          ) : (
+            <div className="space-y-3">
+              {history.map((ev, idx) => {
+                const teamLabel = ev.scoringTeam === 0 ? teamNames.team0 : (ev.scoringTeam === 1 ? teamNames.team1 : '—')
+                const outcomeLabel = ev.outcomeType === 'plus1' ? '+1 (3–4 tricks)' : ev.outcomeType === 'euchre' ? '+2 (euchre)' : ev.outcomeType === 'loner' ? '+4 (loner)' : 'Skipped'
+                const suit = ev.trumpSuit || ''
+                const dealerName = (typeof ev.dealerIdx === 'number' && players[ev.dealerIdx]) ? players[ev.dealerIdx] : '—'
+                return (
+                  <HistoryItem
+                    key={ev.id}
+                    index={idx}
+                    event={ev}
+                    teamLabel={teamLabel}
+                    outcomeLabel={outcomeLabel}
+                    suit={suit}
+                    teamNames={teamNames}
+                    dealerName={dealerName}
+                    onUpdate={(updated) => {
+                      const updatedHistory = history.map((h, i) => i === idx ? updated : h)
+                      setHistory(updatedHistory)
+                      recomputeFromHistory(updatedHistory)
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Inline adaptive widget flow inside suit card */}
     </div>
   )
 }
 
 export default App
+
+function HistoryItem({ index, event, teamLabel, outcomeLabel, suit, teamNames, dealerName, onUpdate }) {
+  const [editing, setEditing] = useState(false)
+  const [editTeam, setEditTeam] = useState(event.scoringTeam ?? 0)
+  const [editOutcome, setEditOutcome] = useState(event.outcomeType ?? 'plus1')
+
+  const applyUpdate = () => {
+    // Map edited fields back to event structure
+    const scoringTeam = editOutcome === 'skip' ? null : editTeam
+    const pointsAwarded = editOutcome === 'skip' ? 0 : (editOutcome === 'plus1' ? 1 : editOutcome === 'euchre' ? 2 : 4)
+    const callerTeam = editOutcome === 'euchre' ? (scoringTeam === 0 ? 1 : 0) : scoringTeam
+    const updated = {
+      ...event,
+      scoringTeam,
+      pointsAwarded,
+      outcomeType: editOutcome,
+      callerTeam,
+    }
+    onUpdate(updated)
+    setEditing(false)
+  }
+
+  return (
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
+      <div>
+        <div className="text-slate-200 font-semibold">Round {index + 1}</div>
+        <div className="text-slate-300 text-sm">Dealer: {dealerName} • {suit ? `Suit: ${suit}` : 'No Suit'}</div>
+        <div className="text-slate-100">{teamLabel} — {outcomeLabel}</div>
+      </div>
+      <div className="mt-2 md:mt-0 flex items-center gap-2">
+        {!editing && (
+          <button className="rounded-md bg-slate-600 px-3 py-2 text-white text-sm hover:bg-slate-500" onClick={() => setEditing(true)}>Edit</button>
+        )}
+        {editing && (
+          <div className="flex items-center gap-2">
+            <select className="rounded-md bg-slate-800 border border-slate-700 text-slate-200 px-2 py-1" value={editTeam ?? 0} onChange={(e) => setEditTeam(Number(e.target.value))} disabled={editOutcome === 'skip'}>
+              <option value={0}>{teamNames.team0}</option>
+              <option value={1}>{teamNames.team1}</option>
+            </select>
+            <select className="rounded-md bg-slate-800 border border-slate-700 text-slate-200 px-2 py-1" value={editOutcome} onChange={(e) => setEditOutcome(e.target.value)}>
+              <option value="plus1">+1 (3–4 tricks)</option>
+              <option value="euchre">+2 (euchre)</option>
+              <option value="loner">+4 (loner)</option>
+              <option value="skip">Skipped</option>
+            </select>
+            <button className="rounded-md bg-primary px-3 py-2 text-white text-sm hover:bg-emerald-700" onClick={applyUpdate}>Save</button>
+            <button className="rounded-md bg-slate-600 px-3 py-2 text-white text-sm hover:bg-slate-500" onClick={() => setEditing(false)}>Cancel</button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
