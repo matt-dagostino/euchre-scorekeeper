@@ -442,7 +442,7 @@ function App() {
 
   if (!gameStarted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-6xl space-y-8">
           <h1 className="text-center text-6xl font-extrabold text-yellow-300">Euchre Score Keeper</h1>
           <div className="rounded-2xl border border-slate-700 bg-slate-800 p-10 shadow-xl">
@@ -480,6 +480,12 @@ function App() {
             <p className="text-center text-slate-400 mt-4">Blue and Red are opposite teams. Partners are diagonal (1 & 3 are Blue, 2 & 4 are Red).</p>
             <button className="mt-6 w-full rounded-xl bg-primary px-6 py-5 text-xl font-bold text-white transition-colors disabled:opacity-50 hover:bg-emerald-700" onClick={startGame} disabled={!players.every(p => p.trim() !== '')}>Start Game</button>
           </div>
+        </div>
+        <div className="mt-6 text-center text-slate-400">
+          <span>Made by </span>
+          <a href="https://github.com/matt-dagostino" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">Matteo Dagostino</a>
+          <span className="text-slate-500 mx-2">·</span>
+          <a href="https://www.linkedin.com/in/matt-dag09/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">LinkedIn</a>
         </div>
       </div>
     )
