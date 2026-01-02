@@ -1,16 +1,54 @@
-# React + Vite
+# Euchre Scorekeeper
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, fast, and friendly scorekeeper for Euchre. Built with React + Vite and Tailwind CSS, it focuses on clarity and speed so your game keeps moving.
 
-Currently, two official plugins are available:
+## Highlights
+- Simple setup: enter 4 player names in a 2×2 grid
+- Pick the initial dealer right after starting
+- Big, legible “Power Suit” selection with color-safe backgrounds
+- Compact sticky scoreboard during rounds
+- One-tap outcomes: `+1`, `+2` (euchre or sweep), `+4` (loner)
+- Round history with inline edits and automatic recompute
+- Clean end‑game stats: suit breakdown, calls, outcomes, final score
+- Play Again vs New Game flows (keep or reset names)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Quick Start
+1. Install dependencies
+	```bash
+	npm install
+	```
+2. Run the dev server
+	```bash
+	npm run dev
+	```
+3. Open `http://localhost:5173` and start scoring.
 
-## React Compiler
+## How It Works
+- Setup: Enter player names (Blue team is players 1 & 3; Red team is players 2 & 4).
+- Dealer: Tap the starting dealer in the 2×2 grid.
+- Round: Select the trump suit, then record the outcome using `+1`, `+2`, or `+4`.
+- History: Fix mistakes by editing past rounds; scores and stats recompute automatically.
+- Finish: When a team reaches 10 points, view the final stats and choose Play Again or New Game.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
+- React (Vite)
+- Tailwind CSS
+- framer‑motion (animations)
 
-## Expanding the ESLint configuration
+## Project Structure
+```
+public/
+src/
+  App.jsx
+  main.jsx
+  index.css
+index.html
+``` 
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Attribution
+Made by Matteo Dagostino
+
+## Roadmap
+- Optional: suit/caller edits in history, delete/undo entries
+- Optional: accessibility improvements and color‑blind cues
+
