@@ -442,50 +442,58 @@ function App() {
 
   if (!gameStarted) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-6xl space-y-8">
-          <h1 className="text-center text-6xl font-extrabold text-yellow-300">Euchre Score Keeper</h1>
-          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-10 shadow-xl">
-            <h2 className="text-center text-2xl font-semibold text-yellow-300 mb-6">Enter Player Names</h2>
-            <div className="flex items-center justify-center gap-6 mb-6">
-              <button className="rounded-lg border border-blue-600 bg-blue-900/60 px-4 py-2 text-blue-200 text-lg font-semibold hover:bg-blue-800" onClick={() => setEditingTeam(0)}>{teamNames.team0}</button>
-              <button className="rounded-lg border border-red-600 bg-red-900/60 px-4 py-2 text-red-200 text-lg font-semibold hover:bg-red-800" onClick={() => setEditingTeam(1)}>{teamNames.team1}</button>
+      <div className="app-shell flex w-full min-h-screen flex-col items-center justify-start px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="flex w-full flex-1 flex-col gap-6 sm:gap-8">
+          <div className="text-center">
+            <div className="eyebrow mb-3">The classic trick-taking game</div>
+            <h1 className="gradient-title text-4xl font-black tracking-tight sm:text-6xl">Euchre Scorekeeper</h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-zinc-400 sm:text-base">Set the table, name your teams, and keep every hand effortless.</p>
+          </div>
+          <div className="glass-panel flex-1 rounded-3xl p-5 sm:p-8 lg:p-10">
+            <div className="mb-7 text-center">
+              <div className="eyebrow mb-2">Game setup</div>
+              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Who&apos;s playing?</h2>
+            </div>
+            <div className="mb-6 flex items-center justify-center gap-3 sm:gap-5">
+              <button className="interactive rounded-full border border-emerald-400/30 bg-emerald-400/10 px-5 py-2.5 text-sm font-bold text-emerald-200 hover:bg-emerald-400/20 sm:text-base" onClick={() => setEditingTeam(0)}>{teamNames.team0}</button>
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-600">vs</span>
+              <button className="interactive rounded-full border border-violet-400/30 bg-violet-400/10 px-5 py-2.5 text-sm font-bold text-violet-200 hover:bg-violet-400/20 sm:text-base" onClick={() => setEditingTeam(1)}>{teamNames.team1}</button>
             </div>
             {editingTeam !== null && (
-              <div className="mb-4 max-w-xl mx-auto">
-                <input type="text" value={editingTeam === 0 ? teamNames.team0 : teamNames.team1} onChange={(e) => setTeamNames(prev => (editingTeam === 0 ? { ...prev, team0: e.target.value } : { ...prev, team1: e.target.value }))} className="w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-4 py-3 text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="mx-auto mb-6 max-w-xl rounded-2xl border border-zinc-800/80 bg-black/20 p-3">
+                <input type="text" value={editingTeam === 0 ? teamNames.team0 : teamNames.team1} onChange={(e) => setTeamNames(prev => (editingTeam === 0 ? { ...prev, team0: e.target.value } : { ...prev, team1: e.target.value }))} className="field px-4 py-3" />
                 <div className="mt-2 flex justify-end">
-                  <button className="rounded-md bg-primary px-3 py-1.5 text-white text-sm hover:bg-emerald-700" onClick={() => updateTeamName(editingTeam, editingTeam === 0 ? teamNames.team0 : teamNames.team1)}>Save Name</button>
+                  <button className="primary-action rounded-lg px-4 py-2 text-sm" onClick={() => updateTeamName(editingTeam, editingTeam === 0 ? teamNames.team0 : teamNames.team1)}>Save Team Name</button>
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-xl border-2 border-blue-600 bg-blue-900/50 p-6">
-                <label className="text-blue-300 font-medium">Player 1 (Blue)</label>
-                <input type="text" value={players[0]} onChange={(e) => handlePlayerChange(0, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="glass-card team-emerald rounded-2xl p-4 sm:p-5">
+                <label className="text-sm font-bold text-emerald-200">Player 1 <span className="font-normal text-zinc-500">· {teamNames.team0}</span></label>
+                <input type="text" value={players[0]} onChange={(e) => handlePlayerChange(0, e.target.value)} placeholder="Enter name" className="field mt-2 px-4 py-3.5 text-lg" />
               </div>
-              <div className="rounded-xl border-2 border-red-600 bg-red-900/50 p-6">
-                <label className="text-red-300 font-medium">Player 2 (Red)</label>
-                <input type="text" value={players[1]} onChange={(e) => handlePlayerChange(1, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="glass-card team-violet rounded-2xl p-4 sm:p-5">
+                <label className="text-sm font-bold text-violet-200">Player 2 <span className="font-normal text-zinc-500">· {teamNames.team1}</span></label>
+                <input type="text" value={players[1]} onChange={(e) => handlePlayerChange(1, e.target.value)} placeholder="Enter name" className="field mt-2 px-4 py-3.5 text-lg" />
               </div>
-              <div className="rounded-xl border-2 border-red-600 bg-red-900/50 p-6">
-                <label className="text-red-300 font-medium">Player 4 (Red)</label>
-                <input type="text" value={players[3]} onChange={(e) => handlePlayerChange(3, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="glass-card team-violet rounded-2xl p-4 sm:p-5 md:order-4">
+                <label className="text-sm font-bold text-violet-200">Player 4 <span className="font-normal text-zinc-500">· {teamNames.team1}</span></label>
+                <input type="text" value={players[3]} onChange={(e) => handlePlayerChange(3, e.target.value)} placeholder="Enter name" className="field mt-2 px-4 py-3.5 text-lg" />
               </div>
-              <div className="rounded-xl border-2 border-blue-600 bg-blue-900/50 p-6">
-                <label className="text-blue-300 font-medium">Player 3 (Blue)</label>
-                <input type="text" value={players[2]} onChange={(e) => handlePlayerChange(2, e.target.value)} placeholder="Enter name" className="mt-1 w-full rounded-lg border-2 border-slate-600 bg-slate-700 px-5 py-4 text-xl text-slate-100 focus:border-primary focus:outline-none" />
+              <div className="glass-card team-emerald rounded-2xl p-4 sm:p-5 md:order-3">
+                <label className="text-sm font-bold text-emerald-200">Player 3 <span className="font-normal text-zinc-500">· {teamNames.team0}</span></label>
+                <input type="text" value={players[2]} onChange={(e) => handlePlayerChange(2, e.target.value)} placeholder="Enter name" className="field mt-2 px-4 py-3.5 text-lg" />
               </div>
             </div>
-            <p className="text-center text-slate-400 mt-4">Blue and Red are opposite teams. Partners are diagonal (1 & 3 are Blue, 2 & 4 are Red).</p>
-            <button className="mt-6 w-full rounded-xl bg-primary px-6 py-5 text-xl font-bold text-white transition-colors disabled:opacity-50 hover:bg-emerald-700" onClick={startGame} disabled={!players.every(p => p.trim() !== '')}>Start Game</button>
+            <p className="mt-5 text-center text-sm text-zinc-500">Partners sit opposite: Players 1 &amp; 3 versus Players 2 &amp; 4.</p>
+            <button className="primary-action mt-7 w-full rounded-2xl px-6 py-4 text-lg sm:py-5" onClick={startGame} disabled={!players.every(p => p.trim() !== '')}>Start the Game <span aria-hidden="true" className="ml-2">→</span></button>
           </div>
         </div>
-        <div className="mt-6 text-center text-slate-400">
+        <div className="mt-7 text-center text-xs text-zinc-600">
           <span>Made by </span>
-          <a href="https://github.com/matt-dagostino" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">Matteo Dagostino</a>
-          <span className="text-slate-500 mx-2">·</span>
-          <a href="https://www.linkedin.com/in/matt-dag09/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">LinkedIn</a>
+          <a href="https://github.com/matt-dagostino" target="_blank" rel="noopener noreferrer" className="text-zinc-400 transition-colors hover:text-emerald-300">Matteo Dagostino</a>
+          <span className="mx-2 text-zinc-700">·</span>
+          <a href="https://www.linkedin.com/in/matt-dag09/" target="_blank" rel="noopener noreferrer" className="text-zinc-400 transition-colors hover:text-emerald-300">LinkedIn</a>
         </div>
       </div>
     )
@@ -494,16 +502,17 @@ function App() {
   // Dealer selection step right after starting
   if (gameStarted && selectingDealer && !gameEnded) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-xl">
-          <h2 className="text-center text-2xl font-semibold text-yellow-300 mb-4">Select the Dealer</h2>
-          <p className="text-center text-slate-300 mb-6">Tap the player who deals first</p>
-          <div className="grid grid-cols-2 gap-4">
+      <div className="app-shell flex w-full min-h-screen items-center justify-center p-3 sm:p-6 lg:p-8">
+        <div className="glass-panel flex min-h-[calc(100vh-1.5rem)] w-full flex-col justify-center rounded-3xl p-5 sm:min-h-[calc(100vh-3rem)] sm:p-8 lg:min-h-[calc(100vh-4rem)] lg:p-10">
+          <div className="eyebrow mb-2 text-center">First hand</div>
+          <h2 className="gradient-title mb-3 text-center text-3xl font-black">Choose the Dealer</h2>
+          <p className="mb-7 text-center text-zinc-400">Tap the player holding the first deal.</p>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {[0,1,3,2].map((idx) => {
               const isBlue = idx === 0 || idx === 2
               const btnClasses = isBlue
-                ? "rounded-xl border-2 border-blue-600 bg-blue-900/50 px-4 py-5 text-blue-100 text-xl font-semibold hover:bg-blue-800"
-                : "rounded-xl border-2 border-red-600 bg-red-900/50 px-4 py-5 text-red-100 text-xl font-semibold hover:bg-red-800"
+                ? "interactive team-emerald rounded-2xl border px-3 py-6 text-emerald-100 text-lg font-bold hover:border-emerald-400/60 hover:bg-emerald-400/15 sm:text-xl"
+                : "interactive team-violet rounded-2xl border px-3 py-6 text-violet-100 text-lg font-bold hover:border-violet-400/60 hover:bg-violet-400/15 sm:text-xl"
               return (
                 <button key={idx} className={btnClasses} onClick={() => {
                   setCurrentDealer(idx)
@@ -531,85 +540,88 @@ function App() {
     const team2Points = stats.pointsByTeam.team1
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-6xl rounded-2xl border border-slate-700 bg-slate-800 p-8 shadow-xl text-center">
-          <h1 className="text-3xl font-bold text-yellow-300 mb-4">🎉 GAME OVER! 🎉</h1>
-          <div className="rounded-2xl bg-primary p-6 mb-6 shadow">
-            <h2 className="text-white text-2xl font-semibold mb-2">{winner === 0 ? teamNames.team0 : teamNames.team1} Wins!</h2>
-            <div className="text-white/90 text-lg font-medium mb-2">{winnerNames}</div>
-            <div className="text-yellow-300 text-4xl font-extrabold">{scores[0]} - {scores[1]}</div>
+      <div className="app-shell flex w-full min-h-screen items-center justify-center p-3 sm:p-6 lg:p-8">
+        <div className="glass-panel min-h-[calc(100vh-1.5rem)] w-full rounded-3xl p-4 text-center sm:min-h-[calc(100vh-3rem)] sm:p-7 lg:min-h-[calc(100vh-4rem)] lg:p-10">
+          <div className="eyebrow mb-2">Final result</div>
+          <h1 className="gradient-title mb-5 text-3xl font-black tracking-tight sm:text-4xl">Game Complete</h1>
+          <div className="relative mb-7 overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 via-zinc-900/70 to-violet-500/20 p-7 shadow-2xl shadow-emerald-950/30">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/80 to-transparent" />
+            <div className="eyebrow mb-2 text-emerald-200">Champions</div>
+            <h2 className="text-3xl font-black text-white sm:text-4xl">{winner === 0 ? teamNames.team0 : teamNames.team1}</h2>
+            <div className="mb-3 mt-1 text-base font-medium text-zinc-300 sm:text-lg">{winnerNames}</div>
+            <div className="score-glow text-5xl font-black tracking-tight sm:text-6xl">{scores[0]} <span className="text-zinc-600">—</span> {scores[1]}</div>
           </div>
 
           <div className="mb-6">
-            <h3 className="text-yellow-300 text-2xl font-semibold mb-4">Game Statistics</h3>
+            <h3 className="mb-4 text-xl font-bold text-zinc-100 sm:text-2xl">Game Statistics</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-                <div className="text-slate-300 text-sm font-medium uppercase">Total Rounds (incl. skips)</div>
-                <div className="text-yellow-300 text-2xl font-bold">{totalRoundsWithSkips}</div>
+              <div className="stat-tile">
+                <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Rounds</div>
+                <div className="mt-1 text-3xl font-black text-amber-300">{totalRoundsWithSkips}</div>
               </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-                <div className="text-slate-300 text-sm font-medium uppercase">Skipped Rounds</div>
-                <div className="text-yellow-300 text-2xl font-bold">{stats.skippedRounds}</div>
+              <div className="stat-tile">
+                <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">Skipped Rounds</div>
+                <div className="mt-1 text-3xl font-black text-amber-300">{stats.skippedRounds}</div>
               </div>
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-                <div className="text-slate-300 text-sm font-medium uppercase">Most Chosen Suit</div>
-                <div className="text-yellow-300 text-xl font-bold">{mostCommonSuit[0]}</div>
-                <div className="text-slate-400 text-sm">{mostCommonSuit[1]} times</div>
+              <div className="stat-tile">
+                <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">Most Chosen Suit</div>
+                <div className="mt-1 text-xl font-black text-amber-300">{mostCommonSuit[0]}</div>
+                <div className="text-sm text-zinc-500">{mostCommonSuit[1]} times</div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6 mb-6 text-left">
-              <h4 className="text-yellow-300 text-xl font-semibold mb-3">Suit Breakdown</h4>
+            <div className="glass-card mb-6 rounded-2xl p-5 text-left sm:p-6">
+              <h4 className="mb-3 text-lg font-bold text-zinc-100">Suit Breakdown</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100 text-lg">♠️ Spades</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.trumpSuits['Spades']}</span>
+                <div className="stat-tile flex items-center justify-between p-3">
+                  <span className="text-zinc-200">♠️ Spades</span>
+                  <span className="text-xl font-black text-emerald-300">{stats.trumpSuits['Spades']}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100 text-lg">♥️ Hearts</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.trumpSuits['Hearts']}</span>
+                <div className="stat-tile flex items-center justify-between p-3">
+                  <span className="text-zinc-200">♥️ Hearts</span>
+                  <span className="text-xl font-black text-emerald-300">{stats.trumpSuits['Hearts']}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100 text-lg">♦️ Diamonds</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.trumpSuits['Diamonds']}</span>
+                <div className="stat-tile flex items-center justify-between p-3">
+                  <span className="text-zinc-200">♦️ Diamonds</span>
+                  <span className="text-xl font-black text-emerald-300">{stats.trumpSuits['Diamonds']}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-2">
-                  <span className="text-slate-100 text-lg">♣️ Clubs</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.trumpSuits['Clubs']}</span>
+                <div className="stat-tile flex items-center justify-between p-3">
+                  <span className="text-zinc-200">♣️ Clubs</span>
+                  <span className="text-xl font-black text-emerald-300">{stats.trumpSuits['Clubs']}</span>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-left">
-              <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6">
-                <h4 className="text-yellow-300 text-xl font-semibold mb-2">Team Calls</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3 mb-2">
-                  <span className="text-slate-100">{teamNames.team0}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team1Trump}</span>
+              <div className="glass-card rounded-2xl p-5 sm:p-6">
+                <h4 className="mb-3 text-lg font-bold text-zinc-100">Team Calls</h4>
+                <div className="stat-tile mb-2 flex items-center justify-between p-3">
+                  <span className="text-emerald-200">{teamNames.team0}</span>
+                  <span className="text-xl font-black text-emerald-300">{team1Trump}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
-                  <span className="text-slate-100">{teamNames.team1}</span>
-                  <span className="text-emerald-400 font-bold text-xl">{team2Trump}</span>
+                <div className="stat-tile flex items-center justify-between p-3">
+                  <span className="text-violet-200">{teamNames.team1}</span>
+                  <span className="text-xl font-black text-violet-300">{team2Trump}</span>
                 </div>
               </div>
-              <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6">
-                <h4 className="text-yellow-300 text-xl font-semibold mb-2">Outcomes</h4>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3 mb-2">
-                  <span className="text-slate-100">Euchres</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.euchreEvents} <span className="text-slate-400 text-sm">({teamNames.team0}: {stats.euchreByTeam[0]}, {teamNames.team1}: {stats.euchreByTeam[1]})</span></span>
+              <div className="glass-card rounded-2xl p-5 sm:p-6">
+                <h4 className="mb-3 text-lg font-bold text-zinc-100">Outcomes</h4>
+                <div className="stat-tile mb-2 flex items-center justify-between gap-3 p-3">
+                  <span className="text-zinc-200">Euchres</span>
+                  <span className="text-right text-xl font-black text-amber-300">{stats.euchreEvents} <span className="block text-xs font-medium text-zinc-500">{teamNames.team0}: {stats.euchreByTeam[0]} · {teamNames.team1}: {stats.euchreByTeam[1]}</span></span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
-                  <span className="text-slate-100">Loners</span>
-                  <span className="text-emerald-400 font-bold text-xl">{stats.lonerEvents} <span className="text-slate-400 text-sm">({teamNames.team0}: {stats.lonerByTeam[0]}, {teamNames.team1}: {stats.lonerByTeam[1]})</span></span>
+                <div className="stat-tile flex items-center justify-between gap-3 p-3">
+                  <span className="text-zinc-200">Loners</span>
+                  <span className="text-right text-xl font-black text-amber-300">{stats.lonerEvents} <span className="block text-xs font-medium text-zinc-500">{teamNames.team0}: {stats.lonerByTeam[0]} · {teamNames.team1}: {stats.lonerByTeam[1]}</span></span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="w-full rounded-xl bg-primary px-5 py-4 text-lg font-bold text-white hover:bg-emerald-700" onClick={playAgain}>
+            <button className="primary-action w-full rounded-xl px-5 py-4 text-lg" onClick={playAgain}>
               Play Again
             </button>
-            <button className="w-full rounded-xl bg-slate-300 px-5 py-4 text-lg font-bold text-slate-900 hover:bg-slate-200" onClick={newGame}>
+            <button className="secondary-action w-full rounded-xl px-5 py-4 text-lg" onClick={newGame}>
               New Game
             </button>
           </div>
@@ -619,13 +631,16 @@ function App() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex flex-col">
-      <div className="flex items-center justify-between mb-4 gap-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-yellow-300">Euchre Score Keeper</h1>
-        <div className="flex gap-2">
-          <button className="rounded-lg bg-accent px-4 py-3 text-white text-lg font-semibold hover:bg-red-600" onClick={resetGame}>Reset Scores</button>
-          <button className="rounded-lg bg-slate-300 px-4 py-3 text-slate-900 text-lg font-semibold hover:bg-slate-200" onClick={newGame}>New Game</button>
-          <button className="rounded-lg bg-slate-700 px-4 py-3 text-white text-lg font-semibold hover:bg-slate-600" onClick={() => setShowHistory(v => !v)}>{showHistory ? 'Hide History' : 'Show History'}</button>
+    <div className="app-shell mx-auto flex w-full min-h-screen flex-col p-3 sm:p-5 lg:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="eyebrow mb-1">Live table</div>
+          <h1 className="gradient-title text-2xl font-black tracking-tight sm:text-3xl">Euchre Scorekeeper</h1>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:flex">
+          <button className="danger-action min-h-12 rounded-xl px-3 py-2.5 text-xs sm:px-4 sm:text-sm" onClick={resetGame}>Reset Scores</button>
+          <button className="secondary-action min-h-12 rounded-xl px-3 py-2.5 text-xs sm:px-4 sm:text-sm" onClick={newGame}>New Game</button>
+          <button className="secondary-action min-h-12 rounded-xl px-3 py-2.5 text-xs sm:px-4 sm:text-sm" onClick={() => setShowHistory(v => !v)}>{showHistory ? 'Hide History' : 'History'}</button>
         </div>
       </div>
 
@@ -634,28 +649,28 @@ function App() {
         const headerShrink = Boolean(trump) && roundStep === 'score'
         return (
           <motion.div
-            className={`grid grid-cols-3 items-center gap-4 rounded-xl border border-slate-700 bg-slate-800 shadow ${headerShrink ? 'p-3 sticky top-0 z-20 bg-slate-800/90 backdrop-blur' : 'p-6'}`}
+            className={`glass-panel grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-3xl sm:gap-4 ${headerShrink ? 'sticky top-2 z-20 p-3' : 'p-4 sm:p-6'}`}
             initial={false}
             animate={headerShrink ? { scale: 0.9, y: -6, opacity: 0.98 } : { scale: 1, y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           >
             <div className="text-center">
-              <h2 className={`text-yellow-300 font-semibold ${headerShrink ? 'text-base' : 'text-xl'}`}>{teamNames.team0}</h2>
-              <div className={`text-slate-300 font-medium ${headerShrink ? 'text-xs' : 'text-lg'}`}>{players[0]} & {players[2]}</div>
-              <div className={`leading-none font-extrabold text-yellow-400 transition-transform ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-7xl sm:text-8xl'} ${animateScore[0] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[0]}</div>
+              <h2 className={`font-bold text-emerald-300 ${headerShrink ? 'text-sm' : 'text-base sm:text-xl'}`}>{teamNames.team0}</h2>
+              <div className={`font-medium text-zinc-500 ${headerShrink ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-base'}`}>{players[0]} & {players[2]}</div>
+              <div className={`score-glow leading-none font-black transition-transform duration-200 ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-6xl sm:text-8xl'} ${animateScore[0] ? 'scale-110' : ''}`}>{scores[0]}</div>
             </div>
-            <div className={`text-center text-yellow-300 font-bold ${headerShrink ? 'text-base' : 'text-2xl'}`}>VS</div>
+            <div className={`rounded-full border border-zinc-800 bg-zinc-950/60 text-center font-black uppercase tracking-widest text-zinc-600 ${headerShrink ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs sm:text-sm'}`}>vs</div>
             <div className="text-center">
-              <h2 className={`text-yellow-300 font-semibold ${headerShrink ? 'text-base' : 'text-xl'}`}>{teamNames.team1}</h2>
-              <div className={`text-slate-300 font-medium ${headerShrink ? 'text-xs' : 'text-lg'}`}>{players[1]} & {players[3]}</div>
-              <div className={`leading-none font-extrabold text-yellow-400 transition-transform ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-7xl sm:text-8xl'} ${animateScore[1] ? 'scale-110' : ''} drop-shadow-[0_0_6px_rgba(255,255,0,0.25)]`}>{scores[1]}</div>
+              <h2 className={`font-bold text-violet-300 ${headerShrink ? 'text-sm' : 'text-base sm:text-xl'}`}>{teamNames.team1}</h2>
+              <div className={`font-medium text-zinc-500 ${headerShrink ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-base'}`}>{players[1]} & {players[3]}</div>
+              <div className={`score-glow leading-none font-black transition-transform duration-200 ${headerShrink ? 'text-4xl sm:text-5xl' : 'text-6xl sm:text-8xl'} ${animateScore[1] ? 'scale-110' : ''}`}>{scores[1]}</div>
             </div>
           </motion.div>
         )
       })()}
 
       {/* Current Dealer and Suit */}
-      <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow mb-4">
+      <div className="glass-panel mb-4 mt-4 rounded-3xl p-4 sm:p-6">
         {/* Animated background overlay based on selected suit */}
         <motion.div
           className="fixed inset-0 -z-10"
@@ -664,18 +679,18 @@ function App() {
           transition={{ duration: 0.6 }}
           style={patternDataUrl ? { backgroundImage: patternDataUrl, backgroundRepeat: 'repeat', backgroundSize: '70px 70px' } : {}}
         />
-        <div className="text-center mb-3 text-slate-200 text-xl">
-          <span className="text-slate-300 mr-2">Current Dealer:</span>
-          <span className="text-yellow-300 font-bold text-xl">{players[currentDealer]}</span>
+        <div className="mb-5 text-center">
+          <span className="eyebrow mr-2">Current dealer</span>
+          <span className="text-lg font-black text-amber-300 sm:text-xl">{players[currentDealer]}</span>
         </div>
 
         {/* Removed next dealer popup per request */}
 
         <div className="mb-3">
-          <h3 className="text-center text-yellow-300 text-xl md:text-2xl font-semibold mb-2">Select Power Suit</h3>
+          <h3 className="mb-3 text-center text-xl font-bold text-white md:text-2xl">Select the Power Suit</h3>
           {!trump && (
-            <div className="flex justify-center mb-2">
-              <button className="rounded-lg bg-slate-700 px-4 py-3 text-white text-lg font-semibold hover:bg-slate-600" onClick={skipDealer}>
+            <div className="mb-3 flex justify-center">
+              <button className="secondary-action min-h-12 rounded-xl px-5 py-3 text-sm" onClick={skipDealer}>
                 Skip Dealer (All Pass)
               </button>
             </div>
@@ -685,7 +700,7 @@ function App() {
               {suits.map((suit) => (
                 <button
                   key={suit}
-                  className={`rounded-lg border-2 px-4 py-3 text-xl font-semibold ${trump === suit ? 'bg-primary border-primary text-white' : 'bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600'}`}
+                  className={`interactive rounded-2xl border px-3 py-4 text-base font-bold shadow-lg shadow-black/20 sm:px-4 sm:text-xl ${trump === suit ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100' : 'border-zinc-800 bg-zinc-950/45 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/70'}`}
                   onClick={() => handleTrumpSelect(suit)}
                 >
                   {suit}
@@ -702,52 +717,52 @@ function App() {
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-              className={`mt-3 rounded-xl border-2 border-emerald-700 bg-emerald-600 p-8 text-center shadow`}
+              className="relative mt-4 overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/30 via-emerald-900/50 to-zinc-950/80 p-6 text-center shadow-2xl shadow-emerald-950/40 sm:p-8"
             >
-              <div className="tracking-widest text-white/80 text-base md:text-lg font-bold">POWER SUIT</div>
-              <div className="text-white text-7xl md:text-8xl font-extrabold drop-shadow-[0_0_10px_rgba(255,255,255,0.6)]">{trump}</div>
+              <div className="eyebrow text-emerald-200">Power Suit</div>
+              <div className="mt-1 text-5xl font-black text-white drop-shadow-[0_0_18px_rgba(52,211,153,0.35)] sm:text-7xl md:text-8xl">{trump}</div>
             </motion.div>
 
             {/* Adaptive step: scoring with numeric buttons and help tooltip */}
             {roundStep === 'score' && (
-              <div className="mt-4">
+              <div className="mt-5">
                 <div className="flex items-center justify-center gap-2 mb-3">
-                  <h4 className="text-slate-300 text-lg md:text-xl">Record Outcome</h4>
+                  <h4 className="text-lg font-bold text-zinc-200 md:text-xl">Record Outcome</h4>
                   <div className="relative group">
                     <button
                       type="button"
                       aria-label="Scoring help"
-                      className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-600 text-white text-sm hover:bg-slate-500"
+                      className="interactive inline-flex h-7 w-7 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-sm font-bold text-zinc-300 hover:border-zinc-500 hover:text-white"
                       onClick={() => setShowScoreHelp(v => !v)}
                     >
                       ?
                     </button>
-                    <div className={`absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-72 rounded-md border border-slate-700 bg-slate-800 p-3 text-slate-200 text-sm shadow ${showScoreHelp ? 'block' : 'hidden group-hover:block'}`}>
-                      <div className="mb-1"><span className="text-yellow-300 font-semibold">+1</span> Calling team wins 3–4 tricks</div>
-                      <div className="mb-1"><span className="text-yellow-300 font-semibold">+2</span> Euchre (defenders) <span className="text-slate-400">or</span> calling team wins all 5 tricks</div>
-                      <div><span className="text-yellow-300 font-semibold">+4</span> Loner hand success by callers</div>
+                    <div className={`glass-panel absolute left-1/2 z-20 mt-2 w-72 -translate-x-1/2 rounded-xl p-3 text-left text-sm text-zinc-300 ${showScoreHelp ? 'block' : 'hidden group-hover:block'}`}>
+                      <div className="mb-1"><span className="font-bold text-amber-300">+1</span> Calling team wins 3–4 tricks</div>
+                      <div className="mb-1"><span className="font-bold text-amber-300">+2</span> Euchre (defenders) <span className="text-zinc-500">or</span> callers sweep</div>
+                      <div><span className="font-bold text-amber-300">+4</span> Successful loner hand</div>
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-1">{teamNames.team0}</h5>
-                    <div className="text-center text-blue-300 text-sm mb-2">{players[0]} &amp; {players[2]}</div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                  <div className="glass-card team-emerald rounded-2xl p-4">
+                    <h5 className="mb-1 text-center text-lg font-bold text-emerald-200">{teamNames.team0}</h5>
+                    <div className="mb-3 text-center text-sm text-zinc-500">{players[0]} &amp; {players[2]}</div>
                     <div className="grid grid-cols-3 gap-2 mb-2">
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(0, 'plus1')}>+1</button>
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(0, 'euchre')}>+2</button>
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(0, 'loner')}>+4</button>
+                      <button className="primary-action min-h-14 rounded-xl px-3 py-3 text-lg" onClick={() => handleOutcome(0, 'plus1')}>+1</button>
+                      <button className="primary-action min-h-14 rounded-xl px-3 py-3 text-lg" onClick={() => handleOutcome(0, 'euchre')}>+2</button>
+                      <button className="primary-action min-h-14 rounded-xl px-3 py-3 text-lg" onClick={() => handleOutcome(0, 'loner')}>+4</button>
                     </div>
                     {/* Points summary not shown since round ends on selection */}
                   </div>
 
-                  <div className="rounded-xl border border-slate-700 bg-slate-800 p-3">
-                    <h5 className="text-center text-yellow-300 text-lg font-semibold mb-1">{teamNames.team1}</h5>
-                    <div className="text-center text-red-300 text-sm mb-2">{players[1]} &amp; {players[3]}</div>
+                  <div className="glass-card team-violet rounded-2xl p-4">
+                    <h5 className="mb-1 text-center text-lg font-bold text-violet-200">{teamNames.team1}</h5>
+                    <div className="mb-3 text-center text-sm text-zinc-500">{players[1]} &amp; {players[3]}</div>
                     <div className="grid grid-cols-3 gap-2 mb-2">
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(1, 'plus1')}>+1</button>
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(1, 'euchre')}>+2</button>
-                      <button className="rounded-md bg-emerald-600 px-3 py-2 text-white text-lg font-bold hover:bg-emerald-700" onClick={() => handleOutcome(1, 'loner')}>+4</button>
+                      <button className="interactive min-h-14 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-3 text-lg font-bold text-white shadow-lg shadow-violet-950/40 hover:border-violet-300/60 hover:from-violet-500 hover:to-violet-400" onClick={() => handleOutcome(1, 'plus1')}>+1</button>
+                      <button className="interactive min-h-14 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-3 text-lg font-bold text-white shadow-lg shadow-violet-950/40 hover:border-violet-300/60 hover:from-violet-500 hover:to-violet-400" onClick={() => handleOutcome(1, 'euchre')}>+2</button>
+                      <button className="interactive min-h-14 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-3 text-lg font-bold text-white shadow-lg shadow-violet-950/40 hover:border-violet-300/60 hover:from-violet-500 hover:to-violet-400" onClick={() => handleOutcome(1, 'loner')}>+4</button>
                     </div>
                     {/* Points summary not shown since round ends on selection */}
                   </div>
@@ -760,10 +775,16 @@ function App() {
 
       {/* History Panel */}
       {showHistory && (
-        <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow mb-4">
-          <h3 className="text-yellow-300 text-xl font-semibold mb-4">📜 Game History</h3>
+        <div className="glass-panel mb-4 rounded-3xl p-4 sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10" aria-hidden="true">♠</span>
+            <div>
+              <div className="eyebrow">Scorecard</div>
+              <h3 className="text-xl font-bold text-zinc-100">Game History</h3>
+            </div>
+          </div>
           {history.length === 0 ? (
-            <div className="text-slate-300">No history yet — play a round to see events.</div>
+            <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/25 p-8 text-center text-zinc-500">No history yet — play a round to see events.</div>
           ) : (
             <div className="space-y-3">
               {history.map((ev, idx) => {
@@ -823,30 +844,30 @@ function HistoryItem({ index, event, teamLabel, outcomeLabel, suit, teamNames, d
   }
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between rounded-lg border border-slate-700 bg-slate-700/50 p-3">
+    <div className="flex flex-col rounded-2xl border border-zinc-800/70 bg-zinc-950/35 p-4 transition-colors hover:border-zinc-700 md:flex-row md:items-center md:justify-between">
       <div>
-        <div className="text-slate-200 font-semibold">Round {index + 1}</div>
-        <div className="text-slate-300 text-sm">Dealer: {dealerName} • {suit ? `Suit: ${suit}` : 'No Suit'}</div>
-        <div className="text-slate-100">{teamLabel} — {outcomeLabel}</div>
+        <div className="font-bold text-zinc-100">Round {index + 1}</div>
+        <div className="text-sm text-zinc-500">Dealer: {dealerName} • {suit ? `Suit: ${suit}` : 'No Suit'}</div>
+        <div className="mt-1 text-sm font-medium text-zinc-300">{teamLabel} — <span className="text-amber-300">{outcomeLabel}</span></div>
       </div>
       <div className="mt-2 md:mt-0 flex items-center gap-2">
         {!editing && (
-          <button className="rounded-md bg-slate-600 px-3 py-2 text-white text-sm hover:bg-slate-500" onClick={() => setEditing(true)}>Edit</button>
+          <button className="secondary-action rounded-lg px-3 py-2 text-sm" onClick={() => setEditing(true)}>Edit</button>
         )}
         {editing && (
-          <div className="flex items-center gap-2">
-            <select className="rounded-md bg-slate-800 border border-slate-700 text-slate-200 px-2 py-1" value={editTeam ?? 0} onChange={(e) => setEditTeam(Number(e.target.value))} disabled={editOutcome === 'skip'}>
+          <div className="flex flex-wrap items-center gap-2">
+            <select className="field w-auto px-2 py-2 text-sm" value={editTeam ?? 0} onChange={(e) => setEditTeam(Number(e.target.value))} disabled={editOutcome === 'skip'}>
               <option value={0}>{teamNames.team0}</option>
               <option value={1}>{teamNames.team1}</option>
             </select>
-            <select className="rounded-md bg-slate-800 border border-slate-700 text-slate-200 px-2 py-1" value={editOutcome} onChange={(e) => setEditOutcome(e.target.value)}>
+            <select className="field w-auto px-2 py-2 text-sm" value={editOutcome} onChange={(e) => setEditOutcome(e.target.value)}>
               <option value="plus1">+1 (3–4 tricks)</option>
               <option value="euchre">+2 (euchre)</option>
               <option value="loner">+4 (loner)</option>
               <option value="skip">Skipped</option>
             </select>
-            <button className="rounded-md bg-primary px-3 py-2 text-white text-sm hover:bg-emerald-700" onClick={applyUpdate}>Save</button>
-            <button className="rounded-md bg-slate-600 px-3 py-2 text-white text-sm hover:bg-slate-500" onClick={() => setEditing(false)}>Cancel</button>
+            <button className="primary-action rounded-lg px-3 py-2 text-sm" onClick={applyUpdate}>Save</button>
+            <button className="secondary-action rounded-lg px-3 py-2 text-sm" onClick={() => setEditing(false)}>Cancel</button>
           </div>
         )}
       </div>
